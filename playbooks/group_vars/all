@@ -1,0 +1,4 @@
+---
+db_name: sitedb
+db_user: siteuser
+db_pass: sitepass

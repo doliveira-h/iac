@@ -1,0 +1,58 @@
+---
+- hosts: mysql
+  become: yes
+  tasks:
+  - name: Install mysql
+    apt:
+      name:
+        - mysql-server
+        - python3-pymysql
+      state: latest
+      update_cache: yes
+
+  - name: Change bind-address
+    lineinfile:
+      path: /etc/mysql/mysql.conf.d/mysqld.cnf
+      regexp: '^bind-address'
+      line: 'bind-address     = 0.0.0.0'
+    notify: restart mysql
+
+  - name: Start mysql service
+    service:
+      name: mysql
+      state: started
+      enabled: yes
+
+  - name: Create a new database {{ db_name }}
+    mysql_db:
+      name: "{{ db_name }}"
+      state: present
+      login_unix_socket: /var/run/mysqld/mysqld.sock
+
+  - name: Create a new user {{ db_user }}
+    mysql_user:
+      name: "{{ db_user }}"
+      password: "{{ db_pass }}"
+      priv: '{{ db_name }}.*:ALL'
+      state: present
+      host: "%"
+      login_unix_socket: /var/run/mysqld/mysqld.sock
+
+  - name: Copy database dump file
+    copy:
+      src: files/sitedb.sql
+      dest: /tmp
+
+  - name: Restore database
+    mysql_db:
+      name: "{{ db_name }}"
+      state: import
+      target: /tmp/sitedb.sql
+      login_unix_socket: /var/run/mysqld/mysqld.sock
+
+  handlers:
+    - name: restart mysql
+      service:
+        name: mysql
+        state: restarted
+      

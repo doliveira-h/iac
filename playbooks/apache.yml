@@ -1,0 +1,36 @@
+---
+- hosts: apache
+  become: yes
+  tasks:
+  - name: Install apache
+    apt:
+      name: 
+        - apache2
+        - php
+        - libapache2-mod-php
+        - php-mysql
+      state: latest
+      update_cache: yes
+  
+  - name: Remove file index.html
+    file:
+      path: /var/www/html/index.html
+      state: absent
+
+  - name: Start apache service
+    service:
+      name: apache2
+      state: started
+      enabled: yes
+
+  - name: Template a file index.php
+    template:
+      src: ./templates/index.php.j2
+      dest: /var/www/html/index.php
+    notify: restart apache
+
+  handlers:
+    - name: restart apache
+      service:
+        name: apache2
+        state: restarted
