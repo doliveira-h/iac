@@ -31,6 +31,20 @@ $ sudo yum -y install terraform
 HashiCorp - Install Terraform documentation
 https://learn.hashicorp.com/tutorials/terraform/install-cli
 
+Install Ansible:
+
+* Ubuntu
+```sh
+$ sudo apt update
+$ sudo apt install ansible
+```
+
+* Centos 7
+```sh
+$ sudo yum install epel-release
+$ sudo yum install ansible
+```
+
 ### Configuring Terraform
 
 * AWS
